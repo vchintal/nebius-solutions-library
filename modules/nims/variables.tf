@@ -159,3 +159,39 @@ variable "qwen3-next-80b-a3b-instruct_replicas" {
   type        = number
   default     = 1
 }
+
+variable "molmim" {
+  description = "install molmim"
+  type        = bool
+  default     = false
+}
+
+variable "molmim_version" {
+  description = "molmim version"
+  type        = string
+  default     = "latest"
+}
+
+variable "molmim_replicas" {
+  description = "molmim instances"
+  type        = number
+  default     = 1
+}
+
+variable "diffdock" {
+  description = "install diffdock"
+  type        = bool
+  default     = false
+}
+
+variable "diffdock_version" {
+  description = "diffdock version"
+  type        = string
+  default     = "latest"
+}
+
+variable "diffdock_replicas" {
+  description = "diffdock instances"
+  type        = number
+  default     = 1
+}

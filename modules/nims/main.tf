@@ -99,5 +99,23 @@ resource "kubernetes_service_v1" "openfold3_lb" {
       target_port = 8000
       protocol    = "TCP"
     }
+    port {
+      name        = "molmim"
+      port        = 8006
+      target_port = 8000
+      protocol    = "TCP"
+    }
+    port {
+      name        = "diffdock"
+      port        = 8007
+      target_port = 8000
+      protocol    = "TCP"
+    }
+    port {
+      name        = "qwen3"
+      port        = 8008
+      target_port = 8000
+      protocol    = "TCP"
+    }
   }
 }

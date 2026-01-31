@@ -58,15 +58,15 @@ resource "kubernetes_deployment_v1" "msa_search" {
 
           resources {
             limits = {
-              cpu              = "32"
-              memory           = "256Gi"
-              "nvidia.com/gpu" = "2"
+              cpu              = "16"
+              memory           = "128Gi"
+              "nvidia.com/gpu" = "1"
             }
 
             requests = {
-              cpu              = "32"
-              memory           = "256Gi"
-              "nvidia.com/gpu" = "2"
+              cpu              = "16"
+              memory           = "128Gi"
+              "nvidia.com/gpu" = "1"
             }
           }
 

@@ -58,6 +58,14 @@ resource "kubernetes_deployment_v1" "bionemo_notebook" {
 
           resources {
             limits = {
+              cpu              = "16"
+              memory           = "128Gi"
+              "nvidia.com/gpu" = "1"
+            }
+
+            requests = {
+              cpu              = "16"
+              memory           = "128Gi"
               "nvidia.com/gpu" = "1"
             }
           }
