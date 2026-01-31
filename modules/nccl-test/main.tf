@@ -1,4 +1,4 @@
-resource "kubernetes_namespace" "nccl-test" {
+resource "kubernetes_namespace_v1" "nccl-test" {
   for_each = toset([
     "nccl-test",
     "kubeflow"
@@ -9,15 +9,15 @@ resource "kubernetes_namespace" "nccl-test" {
   }
 }
 
-resource "kubernetes_service_account" "nccl-test" {
-  depends_on = [kubernetes_namespace.nccl-test]
+resource "kubernetes_service_account_v1" "nccl-test" {
+  depends_on = [kubernetes_namespace_v1.nccl-test]
   metadata {
     name      = "nccl-test"
     namespace = "nccl-test"
   }
 }
 
-resource "kubernetes_cluster_role_binding" "nccl-test" {
+resource "kubernetes_cluster_role_binding_v1" "nccl-test" {
   metadata {
     name = "nccl-test"
   }
@@ -28,20 +28,20 @@ resource "kubernetes_cluster_role_binding" "nccl-test" {
   }
   subject {
     kind      = "ServiceAccount"
-    name      = kubernetes_service_account.nccl-test.metadata[0].name
+    name      = kubernetes_service_account_v1.nccl-test.metadata[0].name
     namespace = "nccl-test"
   }
   subject {
     kind      = "ServiceAccount"
-    name      = kubernetes_service_account.nccl-test.metadata[0].name
+    name      = kubernetes_service_account_v1.nccl-test.metadata[0].name
     namespace = "kubeflow"
   }
 }
 
-resource "kubernetes_job" "kubeflow-install" {
+resource "kubernetes_job_v1" "kubeflow-install" {
   depends_on = [
-    kubernetes_cluster_role_binding.nccl-test,
-    kubernetes_namespace.nccl-test,
+    kubernetes_cluster_role_binding_v1.nccl-test,
+    kubernetes_namespace_v1.nccl-test,
   ]
   metadata {
     name      = "kubeflow-install"
@@ -54,7 +54,7 @@ resource "kubernetes_job" "kubeflow-install" {
         name = "kubeflow"
       }
       spec {
-        service_account_name = kubernetes_service_account.nccl-test.metadata[0].name
+        service_account_name = kubernetes_service_account_v1.nccl-test.metadata[0].name
         container {
 
           name    = "kubectl"
@@ -92,7 +92,7 @@ resource "kubernetes_job" "kubeflow-install" {
 }
 
 resource "helm_release" "nccl-test" {
-  depends_on       = [kubernetes_job.kubeflow-install]
+  depends_on       = [kubernetes_job_v1.kubeflow-install]
   name             = "nccl-test"
   chart            = "${path.module}/files/helm/nccl-test"
   namespace        = "nccl-test"
@@ -108,7 +108,7 @@ resource "helm_release" "nccl-test" {
   ]
 }
 
-resource "kubernetes_job" "wait-for-nccl-test" {
+resource "kubernetes_job_v1" "wait-for-nccl-test" {
   depends_on = [helm_release.nccl-test]
   metadata {
     name      = "wait-for-nccl-test"
@@ -121,7 +121,7 @@ resource "kubernetes_job" "wait-for-nccl-test" {
         name = "wait-for-nccl-test"
       }
       spec {
-        service_account_name = kubernetes_service_account.nccl-test.metadata[0].name
+        service_account_name = kubernetes_service_account_v1.nccl-test.metadata[0].name
         container {
 
           name    = "kubectl"

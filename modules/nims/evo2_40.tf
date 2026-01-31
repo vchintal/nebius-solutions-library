@@ -1,4 +1,4 @@
-resource "kubernetes_deployment" "evo2_40b" {
+resource "kubernetes_deployment_v1" "evo2_40b" {
   metadata {
     name      = "evo2-40b"
     namespace = var.namespace
@@ -25,7 +25,7 @@ resource "kubernetes_deployment" "evo2_40b" {
       spec {
 
         image_pull_secrets {
-          name = kubernetes_secret.nvcrio-cred.metadata[0].name
+          name = kubernetes_secret_v1.nvcrio-cred.metadata[0].name
         }
         # init_container {
         #   name  = "init-mnt-data"
@@ -58,7 +58,7 @@ resource "kubernetes_deployment" "evo2_40b" {
 
             value_from {
               secret_key_ref {
-                name = kubernetes_secret.ngc_api_key.metadata[0].name
+                name = kubernetes_secret_v1.ngc_api_key.metadata[0].name
                 key  = "NGC_API_KEY"
               }
             }
