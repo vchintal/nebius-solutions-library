@@ -169,7 +169,7 @@ variable "molmim" {
 variable "molmim_version" {
   description = "molmim version"
   type        = string
-  default     = "latest"
+  default     = "1.0.0"
 }
 
 variable "molmim_replicas" {
