@@ -32,11 +32,7 @@ resource "kubernetes_deployment_v1" "molmim" {
           name  = "molmim"
           image = "nvcr.io/nim/nvidia/molmim:${var.molmim_version}"
 
-          command = ["/bin/bash", "-c", "/opt/nim/start_server.sh"]
-          security_context {
-            run_as_user  = 0
-            run_as_group = 0
-          }
+          # MolMIM uses default entrypoint (no command override)
 
           env {
             name = "NGC_API_KEY"
@@ -73,7 +69,7 @@ resource "kubernetes_deployment_v1" "molmim" {
           }
           volume_mount {
             name       = "mnt-data"
-            mount_path = "/opt/nim/.cache"
+            mount_path = "/home/nvs/.cache"
           }
         }
 
