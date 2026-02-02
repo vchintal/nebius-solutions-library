@@ -231,3 +231,21 @@ variable "rfdiffusion_replicas" {
   type        = number
   default     = 1
 }
+
+variable "cosmos_reason1_7b" {
+  description = "install cosmos-reason1-7b"
+  type        = bool
+  default     = false
+}
+
+variable "cosmos_reason1_7b_version" {
+  description = "cosmos-reason1-7b version"
+  type        = string
+  default     = "latest"
+}
+
+variable "cosmos_reason1_7b_replicas" {
+  description = "cosmos-reason1-7b instances"
+  type        = number
+  default     = 1
+}

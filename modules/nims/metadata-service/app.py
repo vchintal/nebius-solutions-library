@@ -27,7 +27,7 @@ PROMETHEUS_URL = os.getenv("PROMETHEUS_URL", "http://prometheus-server.o11y.svc.
 # Time window for peak memory calculation (default 7 days)
 PEAK_MEMORY_TIME_WINDOW = os.getenv("PEAK_MEMORY_TIME_WINDOW", "7d")
 
-# NIM port mapping
+# NIM port mapping (proxy ports)
 NIM_PORTS = {
     "openfold3": 8000,
     "boltz2": 8001,
@@ -40,6 +40,7 @@ NIM_PORTS = {
     "qwen3-next-80b-a3b-instruct": 8008,
     "proteinmpnn": 8009,
     "rfdiffusion": 8010,
+    "cosmos-reason1-7b": 8011,
 }
 
 class ResourceInfo(BaseModel):

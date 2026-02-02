@@ -197,3 +197,21 @@ resource "kubernetes_service_v1" "rfdiffusion" {
     type = "ClusterIP"
   }
 }
+
+resource "kubernetes_service_v1" "cosmos_reason1_7b" {
+  depends_on = [kubernetes_namespace_v1.nims]
+  metadata {
+    name      = "cosmos-reason1-7b-svc"
+    namespace = var.namespace
+  }
+  spec {
+    selector = {
+      app = "cosmos-reason1-7b"
+    }
+    port {
+      port        = 8000
+      target_port = 8000
+    }
+    type = "ClusterIP"
+  }
+}
