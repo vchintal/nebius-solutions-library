@@ -31,7 +31,7 @@ resource "kubernetes_deployment_v1" "openfold2" {
 
         container {
 
-          name  = "openfold3"
+          name  = "openfold2"
           image = "nvcr.io/nim/openfold/openfold2:${var.openfold2_version}"
 
           command = ["/bin/bash", "-c", "/opt/nim/start_server.sh"]
@@ -86,14 +86,14 @@ resource "kubernetes_deployment_v1" "openfold2" {
 
           empty_dir {
             medium     = "Memory"
-            size_limit = "16Gi"
+            size_limit = "64Gi"
           }
         }
         volume {
           name = "mnt-data"
 
           host_path {
-            path = "/home/data/nim"
+            path = "/mnt/data/nim"
             type = "DirectoryOrCreate"
           }
         }

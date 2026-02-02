@@ -74,7 +74,7 @@ resource "kubernetes_deployment_v1" "boltz2" {
           }
           volume_mount {
             name       = "mnt-data"
-            mount_path = "opt/nim/.cache"
+            mount_path = "/opt/nim/.cache"
           }
         }
 
@@ -85,7 +85,7 @@ resource "kubernetes_deployment_v1" "boltz2" {
 
           empty_dir {
             medium     = "Memory"
-            size_limit = "16Gi"
+            size_limit = "64Gi"
           }
         }
         volume {

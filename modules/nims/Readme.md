@@ -1,20 +1,127 @@
-# NIMS Kubernetes Terraform Module
+# NIMs Kubernetes Terraform Module
 
-This Terraform module deploys a **Kubernetes namespace** with secrets and a **LoadBalancer service** for protein-related applications such as OpenFold, Boltz2, EVO2, and MSA search. It is designed to run on a cloud Kubernetes cluster with GPU support.
+This Terraform module provisions a Kubernetes namespace, secrets, and LoadBalancer services for NVIDIA NIMs used in drug discovery and bio/chem workflows. It is designed for GPU‑enabled clusters and is used by the demo app under `applications/nims-drug-discovery-demo/`.
 
 ---
 
-## Features
+## What This Module Deploys
 
-- Creates a dedicated Kubernetes **namespace**.
-- Creates **Docker registry secret** for `nvcr.io` to pull NVIDIA container images using an NGC key.
-- Creates a **NGC API key secret** for accessing NVIDIA services.
-- Deploys a **single LoadBalancer service** exposing multiple applications on different ports.
-  - OpenFold3 → port 8000  
-  - Boltz2 → port 8001  
-  - EVO2-40b → port 8002  
-  - MSA Search → port 8003  
-  - OpenFold2 → port 8004
-- Uses model cache on shared filesystem
-- Creates bionemo instances (on a seperate load balancer)
+- **Dedicated namespace** for NIM workloads.
+- **NGC secrets**:
+  - Docker registry secret for pulling images from `nvcr.io`.
+  - NGC API key secret for NVIDIA services.
+- **LoadBalancer services** that expose multiple NIMs on fixed ports.
+- **Model cache** on a shared filesystem (for faster cold starts).
+- **BioNeMo stack** on a separate LoadBalancer.
+
 ---
+
+## Exposed NIMs and Ports (Default)
+
+The module exposes NIMs using a shared LoadBalancer per group. The demo UI expects these port mappings by default (editable in the UI):
+
+### Protein / Structure / Sequence (Main LB)
+- **OpenFold3** → `8000`
+- **Boltz2** → `8001`
+- **Evo2‑40B** → `8002`
+- **MSA Search** → `8003`
+- **OpenFold2** → `8004`
+- **GenMol** → `8005` *(if enabled in this module)*
+- **Qwen3** → `8006` *(if enabled in this module)*
+
+### BioNeMo (Separate LB)
+- Deployed via `bionemo.tf` (ports and services defined there).
+
+> If your cluster uses different ports, update the demo UI’s LoadBalancer configuration.
+
+---
+
+## File‑by‑File Documentation
+
+### Core Module
+- `main.tf`  
+  Creates the namespace, secrets, and base LoadBalancer service(s).
+
+- `provider.tf`  
+  Kubernetes provider configuration.
+
+- `variables.tf`  
+  All configurable inputs (namespace, NGC keys, images, resource limits, etc.).
+
+- `output.tf`  
+  Outputs LoadBalancer IPs and service details.
+
+### NIM Deployments
+- `openfold2.tf`  
+  Deploys OpenFold2 (monomer structure prediction).
+
+- `openfold3.tf`  
+  Deploys OpenFold3 (complex structure prediction).
+
+- `boltz2.tf`  
+  Deploys Boltz2 (structure prediction with ligands/constraints).
+
+- `evo2_40.tf`  
+  Deploys Evo2‑40B (sequence generation/reasoning).
+
+- `msa-search.tf`  
+  Deploys an MSA search service used to build alignments.
+
+- `genmol.tf`  
+  Deploys GenMol (molecule generation).
+
+- `qwen3-next-80b-a3b-instruct.tf`  
+  Deploys Qwen3 (LLM copilot for workflow adoption).
+
+- `bionemo.tf`  
+  Deploys BioNeMo NIMs on a separate LoadBalancer.
+
+---
+
+## How the Demo App Uses This Module
+
+The demo app connects directly to the LoadBalancer IP created by this module and expects:
+
+- **Health checks** on each service port:
+  - `GET /v1/health/ready`
+  - `GET /v1/health/live`
+  - `GET /v1/metrics`
+- **Inference endpoints** per NIM (paths defined in the demo UI).
+
+See `applications/nims-drug-discovery-demo/README.md` for the demo workflow.
+
+---
+
+## Notes
+- Requires CUDA 13 on GPU nodes. If your cluster uses a custom driver, enable it (e.g., `custom_driver = true` in your infrastructure setup).
+- A shared filestore is required for model cache; plan for **5 TB+**.
+- Ensure GPU nodes and runtime class are available before applying.
+- Update resource limits/requests as needed for your cluster size.
+- Secrets are required for pulling NGC images and using NIM services.
+
+---
+
+## Example Usage
+
+Add the module to your root `main.tf` (adjust paths and flags as needed):
+
+```hcl
+module "nims" {
+  source = "../modules/nims"
+
+  ngc_key   = "REPLACE_WITH_YOUR_NGC_KEY"
+  parent_id = var.parent_id
+
+  openfold2 = true
+  openfold3 = true
+  boltz2    = true
+  genmol    = true
+  msa_search = true
+  evo2_40b  = true
+
+  qwen3-next-80b-a3b-instruct = true
+  molmim    = true
+  diffdock  = true
+  diffdock_replicas = 3
+}
+```

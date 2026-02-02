@@ -120,6 +120,17 @@ resource "kubernetes_config_map_v1" "nginx_tcp_proxy" {
           proxy_timeout 600s;
           proxy_connect_timeout 10s;
         }
+
+        # Port 8080 -> metadata-service
+        upstream metadata {
+          server metadata-service-svc.${var.namespace}.svc.cluster.local:8080;
+        }
+        server {
+          listen 8080;
+          proxy_pass metadata;
+          proxy_timeout 30s;
+          proxy_connect_timeout 5s;
+        }
       }
     EOF
   }
@@ -165,7 +176,7 @@ resource "kubernetes_deployment_v1" "nginx_tcp_proxy" {
           }
 
           dynamic "port" {
-            for_each = range(8000, 8009)
+            for_each = concat(range(8000, 8009), [8080])
             content {
               container_port = port.value
             }
@@ -264,6 +275,13 @@ resource "kubernetes_service_v1" "nims_lb" {
       name        = "qwen3"
       port        = 8008
       target_port = 8008
+      protocol    = "TCP"
+    }
+
+    port {
+      name        = "metadata"
+      port        = 8080
+      target_port = 8080
       protocol    = "TCP"
     }
   }

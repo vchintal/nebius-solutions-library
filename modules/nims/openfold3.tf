@@ -86,14 +86,14 @@ resource "kubernetes_deployment_v1" "openfold3" {
 
           empty_dir {
             medium     = "Memory"
-            size_limit = "16Gi"
+            size_limit = "64Gi"
           }
         }
         volume {
           name = "mnt-data"
 
           host_path {
-            path = "/home/data/nim"
+            path = "/mnt/data/nim"
             type = "DirectoryOrCreate"
           }
         }
