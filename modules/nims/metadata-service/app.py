@@ -38,6 +38,8 @@ NIM_PORTS = {
     "molmim": 8006,
     "diffdock": 8007,
     "qwen3-next-80b-a3b-instruct": 8008,
+    "proteinmpnn": 8009,
+    "rfdiffusion": 8010,
 }
 
 class ResourceInfo(BaseModel):

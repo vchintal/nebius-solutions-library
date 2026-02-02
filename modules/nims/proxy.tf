@@ -121,6 +121,28 @@ resource "kubernetes_config_map_v1" "nginx_tcp_proxy" {
           proxy_connect_timeout 10s;
         }
 
+        # Port 8009 -> proteinmpnn
+        upstream proteinmpnn {
+          server proteinmpnn-svc.${var.namespace}.svc.cluster.local:8000;
+        }
+        server {
+          listen 8009;
+          proxy_pass proteinmpnn;
+          proxy_timeout 600s;
+          proxy_connect_timeout 10s;
+        }
+
+        # Port 8010 -> rfdiffusion
+        upstream rfdiffusion {
+          server rfdiffusion-svc.${var.namespace}.svc.cluster.local:8000;
+        }
+        server {
+          listen 8010;
+          proxy_pass rfdiffusion;
+          proxy_timeout 600s;
+          proxy_connect_timeout 10s;
+        }
+
         # Port 8080 -> metadata-service
         upstream metadata {
           server metadata-service-svc.${var.namespace}.svc.cluster.local:8080;
@@ -176,7 +198,7 @@ resource "kubernetes_deployment_v1" "nginx_tcp_proxy" {
           }
 
           dynamic "port" {
-            for_each = concat(range(8000, 8009), [8080])
+            for_each = concat(range(8000, 8011), [8080])
             content {
               container_port = port.value
             }
@@ -275,6 +297,20 @@ resource "kubernetes_service_v1" "nims_lb" {
       name        = "qwen3"
       port        = 8008
       target_port = 8008
+      protocol    = "TCP"
+    }
+
+    port {
+      name        = "proteinmpnn"
+      port        = 8009
+      target_port = 8009
+      protocol    = "TCP"
+    }
+
+    port {
+      name        = "rfdiffusion"
+      port        = 8010
+      target_port = 8010
       protocol    = "TCP"
     }
 

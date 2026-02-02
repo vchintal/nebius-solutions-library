@@ -195,3 +195,39 @@ variable "diffdock_replicas" {
   type        = number
   default     = 1
 }
+
+variable "proteinmpnn" {
+  description = "install proteinmpnn"
+  type        = bool
+  default     = false
+}
+
+variable "proteinmpnn_version" {
+  description = "proteinmpnn version"
+  type        = string
+  default     = "1.0.2"
+}
+
+variable "proteinmpnn_replicas" {
+  description = "proteinmpnn instances"
+  type        = number
+  default     = 1
+}
+
+variable "rfdiffusion" {
+  description = "install rfdiffusion"
+  type        = bool
+  default     = false
+}
+
+variable "rfdiffusion_version" {
+  description = "rfdiffusion version"
+  type        = string
+  default     = "2.2.0"
+}
+
+variable "rfdiffusion_replicas" {
+  description = "rfdiffusion instances"
+  type        = number
+  default     = 1
+}

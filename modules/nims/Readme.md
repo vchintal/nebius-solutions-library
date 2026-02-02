@@ -27,7 +27,11 @@ The module exposes NIMs using a shared LoadBalancer per group. The demo UI expec
 - **MSA Search** → `8003`
 - **OpenFold2** → `8004`
 - **GenMol** → `8005` *(if enabled in this module)*
-- **Qwen3** → `8006` *(if enabled in this module)*
+- **MolMIM** → `8006` *(if enabled in this module)*
+- **DiffDock** → `8007` *(if enabled in this module)*
+- **Qwen3** → `8008` *(if enabled in this module)*
+- **ProteinMPNN** → `8009` *(if enabled in this module)*
+- **RFdiffusion** → `8010` *(if enabled in this module)*
 
 ### BioNeMo (Separate LB)
 - Deployed via `bionemo.tf` (ports and services defined there).
@@ -69,6 +73,12 @@ The module exposes NIMs using a shared LoadBalancer per group. The demo UI expec
 
 - `genmol.tf`  
   Deploys GenMol (molecule generation).
+
+- `proteinmpnn.tf`  
+  Deploys ProteinMPNN (sequence design from a given backbone).
+
+- `rfdiffusion.tf`  
+  Deploys RFdiffusion (generative backbone design).
 
 - `qwen3-next-80b-a3b-instruct.tf`  
   Deploys Qwen3 (LLM copilot for workflow adoption).
@@ -123,5 +133,7 @@ module "nims" {
   molmim    = true
   diffdock  = true
   diffdock_replicas = 3
+  proteinmpnn = true
+  rfdiffusion = true
 }
 ```

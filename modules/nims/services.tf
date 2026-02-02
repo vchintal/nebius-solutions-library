@@ -161,3 +161,39 @@ resource "kubernetes_service_v1" "qwen3" {
     type = "ClusterIP"
   }
 }
+
+resource "kubernetes_service_v1" "proteinmpnn" {
+  depends_on = [kubernetes_namespace_v1.nims]
+  metadata {
+    name      = "proteinmpnn-svc"
+    namespace = var.namespace
+  }
+  spec {
+    selector = {
+      app = "proteinmpnn"
+    }
+    port {
+      port        = 8000
+      target_port = 8000
+    }
+    type = "ClusterIP"
+  }
+}
+
+resource "kubernetes_service_v1" "rfdiffusion" {
+  depends_on = [kubernetes_namespace_v1.nims]
+  metadata {
+    name      = "rfdiffusion-svc"
+    namespace = var.namespace
+  }
+  spec {
+    selector = {
+      app = "rfdiffusion"
+    }
+    port {
+      port        = 8000
+      target_port = 8000
+    }
+    type = "ClusterIP"
+  }
+}
