@@ -45,6 +45,11 @@ resource "kubernetes_deployment_v1" "cosmos_reason1_7b" {
             }
           }
 
+          env {
+            name  = "VLLM_MAX_TOTAL_VIDEO_PIXELS"
+            value = "100000000"
+          }
+
           port {
             container_port = 8000
           }
