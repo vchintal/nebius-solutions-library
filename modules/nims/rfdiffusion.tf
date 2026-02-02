@@ -30,6 +30,11 @@ resource "kubernetes_deployment_v1" "rfdiffusion" {
           name  = "rfdiffusion"
           image = "nvcr.io/nim/ipd/rfdiffusion:${var.rfdiffusion_version}"
 
+          security_context {
+            run_as_user  = 0
+            run_as_group = 0
+          }
+
           env {
             name = "NGC_API_KEY"
             value_from {

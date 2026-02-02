@@ -30,6 +30,11 @@ resource "kubernetes_deployment_v1" "proteinmpnn" {
           name  = "proteinmpnn"
           image = "nvcr.io/nim/ipd/proteinmpnn:${var.proteinmpnn_version}"
 
+          security_context {
+            run_as_user  = 0
+            run_as_group = 0
+          }
+
           env {
             name = "NGC_API_KEY"
             value_from {
