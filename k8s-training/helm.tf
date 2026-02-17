@@ -42,8 +42,8 @@ module "o11y" {
   parent_id                 = var.parent_id
   tenant_id                 = var.tenant_id
   cluster_id                = nebius_mk8s_v1_cluster.k8s-cluster.id
-  cpu_nodes_count           = var.cpu_nodes_count
-  gpu_nodes_count           = var.gpu_nodes_count_per_group * var.gpu_node_groups
+  cpu_nodes_count           = var.cpu_nodes_autoscaling.enabled ? var.cpu_nodes_autoscaling.max_size : var.cpu_nodes_fixed_count
+  gpu_nodes_count           = var.gpu_nodes_autoscaling.enabled ? (var.gpu_nodes_autoscaling.max_size  * var.gpu_node_groups):(var.gpu_nodes_fixed_count_per_group * var.gpu_node_groups)
   k8s_node_group_sa_id      = var.enable_k8s_node_group_sa ? nebius_iam_v1_service_account.k8s_node_group_sa[0].id : null
   k8s_node_group_sa_enabled = var.enable_k8s_node_group_sa
 
