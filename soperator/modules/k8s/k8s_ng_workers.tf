@@ -37,6 +37,8 @@ resource "nebius_mk8s_v1_node_group" "worker" {
 
   parent_id = nebius_mk8s_v1_cluster.this.id
 
+  version = var.k8s_version
+
   name = join("-", [
     module.labels.name_nodeset_worker,
     var.node_group_workers[count.index].nodeset_index,
@@ -124,7 +126,7 @@ resource "nebius_mk8s_v1_node_group" "worker" {
     preemptible = var.node_group_workers[count.index].preemptible
 
     gpu_settings = var.use_preinstalled_gpu_drivers ? {
-      drivers_preset = module.resources.driver_preset_by_platform[var.node_group_workers[count.index].resource.platform]
+      drivers_preset = lookup(var.platform_driver_presets, var.node_group_workers[count.index].resource.platform)
     } : null
 
     boot_disk = {

@@ -162,6 +162,7 @@ filestore_accounting = {
 nfs_in_k8s = {
   enabled         = true
   version         = "1.2.0"
+  use_stable_repo = true
   size_gibibytes  = 3720
   disk_type       = "NETWORK_SSD_IO_M3"
   filesystem_type = "ext4"
@@ -192,18 +193,24 @@ slurm_operator_stable = true
 slurm_nodesets_enabled = true
 
 # Partition configuration for nodesets. Used only when slurm_nodesets_enabled is true.
-# If empty, a default partition "main" with all nodes will be created.
+# Each partition must have either is_all = true (includes all nodesets) or nodeset_refs (list of specific nodesets).
+# Users must not remove the "hidden" partition.
+# Users can modify the "main" partition, but should not remove it (there must be at least one default partition).
 # ---
-# slurm_nodesets_partitions = [
-#   {
-#     name   = "workers"
-#     is_all = false
-#     config = "Default=NO PriorityTier=10 MaxTime=INFINITE State=UP OverSubscribe=YES"
-#     nodeset_refs = [
-#       "worker",
-#     ]
-#   },
-# ]
+slurm_nodesets_partitions = [
+  {
+    name         = "main"
+    is_all       = true
+    nodeset_refs = [] # e.g. ["worker"], but is_all must be false in this case
+    config       = "Default=YES PriorityTier=10 MaxTime=INFINITE State=UP OverSubscribe=YES"
+  },
+  {
+    name         = "hidden"
+    is_all       = true
+    nodeset_refs = []
+    config       = "Default=NO PriorityTier=10 PreemptMode=OFF Hidden=YES MaxTime=INFINITE State=UP OverSubscribe=YES"
+  },
+]
 
 # Type of the Slurm partition config. Could be either `default` or `custom`.
 # By default, "default".
@@ -311,6 +318,15 @@ slurm_nodeset_workers = [
   {
     name = "worker"
     size = 128
+    # Autoscaling configuration. Set enabled = false to use fixed node count instead.
+    autoscaling = {
+      enabled = true
+      # min_size options:
+      # - null: min=max, no scale-down (default, recommended - saves ~10 min on initial provisioning)
+      #   it can be changed to a number later if needed.
+      # - N: can scale down to N nodes
+      min_size = null
+    }
     resource = {
       platform = "gpu-h100-sxm"
       preset   = "8gpu-128vcpu-1600gb"
@@ -325,12 +341,23 @@ slurm_nodeset_workers = [
     }
     # Change to preemptible = {} in case you want to use preemptible nodes
     preemptible = null
+    # Use reservation_policy to leverage compute reservations (capacity blocks)
+    # reservation_policy = {
+    #   policy          = "AUTO"  # AUTO, FORBID, or STRICT
+    #   reservation_ids = ["capacityblockgroup-xYYzzzzzz"]
+    # }
     # Provide a list of strings to set Slurm Node features
     features = null
     # Set to `true` to create partition for the NodeSet by default
     create_partition = null
   },
 ]
+
+# Per-platform CUDA versions consumed by Slurm/operator (e.g., 12.8.2). Keys are platform IDs (e.g., gpu-h100-sxm).
+#platform_cuda_versions = {}
+
+# Per-platform GPU driver presets. Keys are platform IDs (e.g., gpu-h100-sxm); values are driver presets (e.g., cuda13.0).
+#platform_driver_presets = {}
 
 # Driverfull mode is used to run Slurm jobs with GPU drivers installed on the worker nodes.
 use_preinstalled_gpu_drivers = true
@@ -571,6 +598,8 @@ k8s_version = 1.32
 # ---
 nvidia_admin_conf_lines = [
   "options nvidia NVreg_RestrictProfilingToAdminUsers=0", # Allow access to GPU counters in nsys profiler for non-root users
+  "options nvidia NVreg_EnableStreamMemOPs=1",
+  "options nvidia NVreg_RegistryDwords=\"PeerMappingOverride=1;\"",
 ]
 
 # endregion k8s

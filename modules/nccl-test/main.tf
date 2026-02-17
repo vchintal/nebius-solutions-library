@@ -1,7 +1,7 @@
 resource "kubernetes_namespace_v1" "nccl-test" {
   for_each = toset([
     "nccl-test",
-    "kubeflow"
+    "kubeflow",
   ])
 
   metadata {
@@ -21,16 +21,19 @@ resource "kubernetes_cluster_role_binding_v1" "nccl-test" {
   metadata {
     name = "nccl-test"
   }
+
   role_ref {
     api_group = "rbac.authorization.k8s.io"
     kind      = "ClusterRole"
     name      = "cluster-admin"
   }
+
   subject {
     kind      = "ServiceAccount"
     name      = kubernetes_service_account_v1.nccl-test.metadata[0].name
     namespace = "nccl-test"
   }
+
   subject {
     kind      = "ServiceAccount"
     name      = kubernetes_service_account_v1.nccl-test.metadata[0].name
@@ -43,6 +46,7 @@ resource "kubernetes_job_v1" "kubeflow-install" {
     kubernetes_cluster_role_binding_v1.nccl-test,
     kubernetes_namespace_v1.nccl-test,
   ]
+
   metadata {
     name      = "kubeflow-install"
     namespace = "nccl-test"
@@ -53,16 +57,19 @@ resource "kubernetes_job_v1" "kubeflow-install" {
       metadata {
         name = "kubeflow"
       }
+
       spec {
         service_account_name = kubernetes_service_account_v1.nccl-test.metadata[0].name
         container {
 
+        container {
           name    = "kubectl"
           image   = "bitnami/kubectl" # Example image, replace with your desired image
           command = ["/bin/sh", "-c"]
           args = [
-            "kubectl apply -k 'github.com/kubeflow/training-operator/manifests/overlays/standalone?ref=v1.7.0'"
+            "kubectl apply -k 'github.com/kubeflow/training-operator/manifests/overlays/standalone?ref=v1.7.0'",
           ]
+
           # Configure the container to run as root
           security_context {
             run_as_user = 0
@@ -80,7 +87,6 @@ resource "kubernetes_job_v1" "kubeflow-install" {
     }
 
     backoff_limit = 10
-
   }
 
   wait_for_completion = true
@@ -88,7 +94,6 @@ resource "kubernetes_job_v1" "kubeflow-install" {
   timeouts {
     create = "30m"
   }
-
 }
 
 resource "helm_release" "nccl-test" {
@@ -104,12 +109,13 @@ resource "helm_release" "nccl-test" {
     {
       name  = "numberOfHosts"
       value = var.number_of_hosts
-    }
+    },
   ]
 }
 
 resource "kubernetes_job_v1" "wait-for-nccl-test" {
   depends_on = [helm_release.nccl-test]
+
   metadata {
     name      = "wait-for-nccl-test"
     namespace = "nccl-test"
@@ -120,10 +126,12 @@ resource "kubernetes_job_v1" "wait-for-nccl-test" {
       metadata {
         name = "wait-for-nccl-test"
       }
+
       spec {
         service_account_name = kubernetes_service_account_v1.nccl-test.metadata[0].name
         container {
 
+        container {
           name    = "kubectl"
           image   = "bitnami/kubectl" # Example image, replace with your desired image
           command = ["/bin/sh", "-c"]
@@ -138,7 +146,6 @@ resource "kubernetes_job_v1" "wait-for-nccl-test" {
     }
 
     backoff_limit = 5
-
   }
 
   wait_for_completion = true
@@ -146,5 +153,4 @@ resource "kubernetes_job_v1" "wait-for-nccl-test" {
   timeouts {
     create = "30m"
   }
-
 }

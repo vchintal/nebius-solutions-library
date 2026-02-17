@@ -432,6 +432,7 @@ variable "nfs_in_k8s" {
   type = object({
     enabled         = bool
     version         = optional(string)
+    use_stable_repo = optional(bool, true)
     size_gibibytes  = optional(number)
     disk_type       = optional(string)
     filesystem_type = optional(string)
@@ -474,6 +475,34 @@ variable "k8s_version" {
   validation {
     condition     = var.k8s_version == null || can(regex("^[\\d]+\\.[\\d]+$", var.k8s_version))
     error_message = "The k8s cluster version must be null or in format `<MAJOR>.<MINOR>`."
+  }
+}
+
+variable "platform_cuda_versions" {
+  description = "Per-platform CUDA versions consumed by Slurm/operator (e.g., 12.8.2). Keys are platform IDs (e.g., gpu-h100-sxm)."
+  type        = map(string)
+  default = {
+    cpu-e2         = "12.9.0"
+    cpu-d3         = "12.9.0"
+    gpu-h100-sxm   = "12.9.0"
+    gpu-h200-sxm   = "12.9.0"
+    gpu-b200-sxm   = "12.9.0"
+    gpu-b200-sxm-a = "12.9.0"
+    gpu-b300-sxm   = "13.0.2"
+  }
+}
+
+variable "platform_driver_presets" {
+  description = "Per-platform GPU driver presets. Keys are platform IDs (e.g., gpu-h100-sxm); values are driver presets (e.g., cuda13.0)."
+  type        = map(string)
+  default = {
+    cpu-e2         = "cuda12.8"
+    cpu-d3         = "cuda12.8"
+    gpu-h100-sxm   = "cuda12.8"
+    gpu-h200-sxm   = "cuda12.8"
+    gpu-b200-sxm   = "cuda12.8"
+    gpu-b200-sxm-a = "cuda12.8"
+    gpu-b300-sxm   = "cuda13.0"
   }
 }
 
@@ -530,7 +559,11 @@ variable "slurm_nodesets_enabled" {
 }
 
 variable "slurm_nodesets_partitions" {
-  description = "Partition configuration for nodesets. Used only when slurm_nodesets_enabled is true."
+  description = <<-EOT
+    Partition configuration for nodesets. Used only when slurm_nodesets_enabled is true.
+    Users must not remove the "hidden" partition.
+    Users can modify the "main" partition, but should not remove it (there must be at least one default partition).
+  EOT
   type = list(object({
     name         = string
     is_all       = optional(bool, false)
@@ -686,6 +719,10 @@ variable "slurm_nodeset_workers" {
   type = list(object({
     name = string
     size = number
+    autoscaling = optional(object({
+      enabled  = optional(bool, true)
+      min_size = optional(number)
+    }), {})
     resource = object({
       platform = string
       preset   = string
@@ -698,7 +735,11 @@ variable "slurm_nodeset_workers" {
     gpu_cluster = optional(object({
       infiniband_fabric = string
     }))
-    preemptible      = optional(object({}))
+    preemptible = optional(object({}))
+    reservation_policy = optional(object({
+      policy          = optional(string)
+      reservation_ids = optional(list(string))
+    }))
     features         = optional(list(string))
     create_partition = optional(bool)
   }))
@@ -741,6 +782,14 @@ variable "slurm_nodeset_workers" {
       (worker.boot_disk.size_gibibytes >= 512)
     ])
     error_message = "Boot disks for worker nodes must be at least 512 GiB."
+  }
+
+  validation {
+    condition = alltrue([
+      for worker in var.slurm_nodeset_workers :
+      worker.autoscaling.min_size == null || worker.autoscaling.min_size <= worker.size
+    ])
+    error_message = "Worker nodeset autoscaling.min_size must be less than or equal to size."
   }
 }
 
