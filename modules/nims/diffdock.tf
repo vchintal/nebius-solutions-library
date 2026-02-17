@@ -1,24 +1,23 @@
-resource "kubernetes_deployment_v1" "boltz2" {
+resource "kubernetes_deployment_v1" "diffdock" {
   metadata {
-    name      = "boltz2"
+    name      = "diffdock"
     namespace = var.namespace
   }
 
   spec {
-    replicas = var.boltz2 ? var.boltz2_replicas : 0
+    replicas = var.diffdock ? var.diffdock_replicas : 0
 
     selector {
       match_labels = {
-        app = "boltz2"
+        app = "diffdock"
       }
     }
 
     template {
       metadata {
         labels = {
-          app      = "boltz2"
+          app      = "diffdock"
           lb_group = "protein-apps"
-
         }
       }
 
@@ -30,8 +29,8 @@ resource "kubernetes_deployment_v1" "boltz2" {
 
         container {
 
-          name  = "boltz2"
-          image = "nvcr.io/nim/mit/boltz2:${var.boltz2_version}"
+          name  = "diffdock"
+          image = "nvcr.io/nim/mit/diffdock:${var.diffdock_version}"
 
           command = ["/bin/bash", "-c", "/opt/nim/start_server.sh"]
           security_context {
@@ -78,14 +77,12 @@ resource "kubernetes_deployment_v1" "boltz2" {
           }
         }
 
-
-
         volume {
           name = "dshm"
 
           empty_dir {
             medium     = "Memory"
-            size_limit = "64Gi"
+            size_limit = "16Gi"
           }
         }
         volume {
@@ -96,7 +93,6 @@ resource "kubernetes_deployment_v1" "boltz2" {
             type = "DirectoryOrCreate"
           }
         }
-
       }
     }
   }

@@ -1,13 +1,3 @@
-moved {
-  from = kubernetes_namespace.nccl-test["nccl-test"]
-  to   = kubernetes_namespace_v1.nccl-test["nccl-test"]
-}
-
-moved {
-  from = kubernetes_namespace.nccl-test["kubeflow"]
-  to   = kubernetes_namespace_v1.nccl-test["kubeflow"]
-}
-
 resource "kubernetes_namespace_v1" "nccl-test" {
   for_each = toset([
     "nccl-test",
@@ -19,23 +9,12 @@ resource "kubernetes_namespace_v1" "nccl-test" {
   }
 }
 
-moved {
-  from = kubernetes_service_account.nccl-test
-  to   = kubernetes_service_account_v1.nccl-test
-}
-
 resource "kubernetes_service_account_v1" "nccl-test" {
-  depends_on = [kubernetes_namespace_v1.nccl-test["nccl-test"]]
-
+  depends_on = [kubernetes_namespace_v1.nccl-test]
   metadata {
     name      = "nccl-test"
     namespace = "nccl-test"
   }
-}
-
-moved {
-  from = kubernetes_cluster_role_binding.nccl-test
-  to   = kubernetes_cluster_role_binding_v1.nccl-test
 }
 
 resource "kubernetes_cluster_role_binding_v1" "nccl-test" {
@@ -62,15 +41,10 @@ resource "kubernetes_cluster_role_binding_v1" "nccl-test" {
   }
 }
 
-moved {
-  from = kubernetes_job.kubeflow-install
-  to   = kubernetes_job_v1.kubeflow-install
-}
-
 resource "kubernetes_job_v1" "kubeflow-install" {
   depends_on = [
     kubernetes_cluster_role_binding_v1.nccl-test,
-    kubernetes_namespace_v1.nccl-test["nccl-test"],
+    kubernetes_namespace_v1.nccl-test,
   ]
 
   metadata {
@@ -86,6 +60,7 @@ resource "kubernetes_job_v1" "kubeflow-install" {
 
       spec {
         service_account_name = kubernetes_service_account_v1.nccl-test.metadata[0].name
+        container {
 
         container {
           name    = "kubectl"
@@ -138,11 +113,6 @@ resource "helm_release" "nccl-test" {
   ]
 }
 
-moved {
-  from = kubernetes_job.wait-for-nccl-test
-  to   = kubernetes_job_v1.wait-for-nccl-test
-}
-
 resource "kubernetes_job_v1" "wait-for-nccl-test" {
   depends_on = [helm_release.nccl-test]
 
@@ -159,6 +129,7 @@ resource "kubernetes_job_v1" "wait-for-nccl-test" {
 
       spec {
         service_account_name = kubernetes_service_account_v1.nccl-test.metadata[0].name
+        container {
 
         container {
           name    = "kubectl"

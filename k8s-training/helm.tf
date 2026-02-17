@@ -25,7 +25,8 @@ module "gpu-operator-custom" {
   depends_on = [
     module.network-operator
   ]
-  source = "../modules/gpu-operator-custom"
+  source       = "../modules/gpu-operator-custom"
+  mig_strategy = var.mig_strategy != null ? var.mig_strategy : "none"
 }
 
 

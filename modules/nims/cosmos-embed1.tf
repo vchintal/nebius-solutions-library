@@ -1,39 +1,35 @@
-resource "kubernetes_deployment_v1" "boltz2" {
+resource "kubernetes_deployment_v1" "cosmos_embed1" {
   metadata {
-    name      = "boltz2"
+    name      = "cosmos-embed1"
     namespace = var.namespace
   }
 
   spec {
-    replicas = var.boltz2 ? var.boltz2_replicas : 0
+    replicas = var.cosmos_embed1 ? var.cosmos_embed1_replicas : 0
 
     selector {
       match_labels = {
-        app = "boltz2"
+        app = "cosmos-embed1"
       }
     }
 
     template {
       metadata {
         labels = {
-          app      = "boltz2"
-          lb_group = "protein-apps"
-
+          app      = "cosmos-embed1"
+          lb_group = "inference-apps"
         }
       }
 
       spec {
-
         image_pull_secrets {
           name = kubernetes_secret_v1.nvcrio-cred.metadata[0].name
         }
 
         container {
+          name  = "cosmos-embed1"
+          image = "nvcr.io/nim/nvidia/cosmos-embed1:${var.cosmos_embed1_version}"
 
-          name  = "boltz2"
-          image = "nvcr.io/nim/mit/boltz2:${var.boltz2_version}"
-
-          command = ["/bin/bash", "-c", "/opt/nim/start_server.sh"]
           security_context {
             run_as_user  = 0
             run_as_group = 0
@@ -41,7 +37,6 @@ resource "kubernetes_deployment_v1" "boltz2" {
 
           env {
             name = "NGC_API_KEY"
-
             value_from {
               secret_key_ref {
                 name = kubernetes_secret_v1.ngc_api_key.metadata[0].name
@@ -50,20 +45,24 @@ resource "kubernetes_deployment_v1" "boltz2" {
             }
           }
 
+          env {
+            name  = "NVIDIA_DRIVER_CAPABILITIES"
+            value = "all"
+          }
+
           port {
             container_port = 8000
           }
 
           resources {
             limits = {
-              cpu              = "16"
-              memory           = "128Gi"
+              cpu              = "8"
+              memory           = "64Gi"
               "nvidia.com/gpu" = "1"
             }
-
             requests = {
-              cpu              = "16"
-              memory           = "128Gi"
+              cpu              = "8"
+              memory           = "64Gi"
               "nvidia.com/gpu" = "1"
             }
           }
@@ -78,25 +77,20 @@ resource "kubernetes_deployment_v1" "boltz2" {
           }
         }
 
-
-
         volume {
           name = "dshm"
-
           empty_dir {
             medium     = "Memory"
-            size_limit = "64Gi"
+            size_limit = "16Gi"
           }
         }
         volume {
           name = "mnt-data"
-
           host_path {
             path = "/mnt/data/nim"
             type = "DirectoryOrCreate"
           }
         }
-
       }
     }
   }

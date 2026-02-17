@@ -1,39 +1,35 @@
-resource "kubernetes_deployment_v1" "boltz2" {
+resource "kubernetes_deployment_v1" "proteinmpnn" {
   metadata {
-    name      = "boltz2"
+    name      = "proteinmpnn"
     namespace = var.namespace
   }
 
   spec {
-    replicas = var.boltz2 ? var.boltz2_replicas : 0
+    replicas = var.proteinmpnn ? var.proteinmpnn_replicas : 0
 
     selector {
       match_labels = {
-        app = "boltz2"
+        app = "proteinmpnn"
       }
     }
 
     template {
       metadata {
         labels = {
-          app      = "boltz2"
+          app      = "proteinmpnn"
           lb_group = "protein-apps"
-
         }
       }
 
       spec {
-
         image_pull_secrets {
           name = kubernetes_secret_v1.nvcrio-cred.metadata[0].name
         }
 
         container {
+          name  = "proteinmpnn"
+          image = "nvcr.io/nim/ipd/proteinmpnn:${var.proteinmpnn_version}"
 
-          name  = "boltz2"
-          image = "nvcr.io/nim/mit/boltz2:${var.boltz2_version}"
-
-          command = ["/bin/bash", "-c", "/opt/nim/start_server.sh"]
           security_context {
             run_as_user  = 0
             run_as_group = 0
@@ -41,7 +37,6 @@ resource "kubernetes_deployment_v1" "boltz2" {
 
           env {
             name = "NGC_API_KEY"
-
             value_from {
               secret_key_ref {
                 name = kubernetes_secret_v1.ngc_api_key.metadata[0].name
@@ -60,7 +55,6 @@ resource "kubernetes_deployment_v1" "boltz2" {
               memory           = "128Gi"
               "nvidia.com/gpu" = "1"
             }
-
             requests = {
               cpu              = "16"
               memory           = "128Gi"
@@ -78,25 +72,21 @@ resource "kubernetes_deployment_v1" "boltz2" {
           }
         }
 
-
-
         volume {
           name = "dshm"
-
           empty_dir {
             medium     = "Memory"
-            size_limit = "64Gi"
+            size_limit = "16Gi"
           }
         }
+
         volume {
           name = "mnt-data"
-
           host_path {
             path = "/mnt/data/nim"
             type = "DirectoryOrCreate"
           }
         }
-
       }
     }
   }
