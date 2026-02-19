@@ -256,10 +256,12 @@ variable "enable_grafana" {
   default     = true
 }
 
-variable "enable_loki" {
-  description = "Enable Loki for logs aggregation."
-  type        = bool
-  default     = true
+variable "loki" {
+  type = object({
+    enabled            = optional(bool, false)
+    region             = optional(string)
+    replication_factor = optional(number)
+  })
 }
 
 variable "enable_prometheus" {

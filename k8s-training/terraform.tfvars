@@ -60,8 +60,10 @@ enable_grafana           = true # Enable or disable Grafana® solution by Nebius
 
 # Local Observability installation
 enable_prometheus = false # Enable or disable Prometheus and Grafana deployment with true or false
-enable_loki       = false # Enable or disable Loki deployment with true or false
-
+loki = {
+  enabled            = true # Enable or disable Loki deployment with true or false
+  replication_factor = 3    # Number of Loki replicas for each log chunk (higher = better availability, more storage/network cost)
+}
 # Storage
 enable_filestore               = false # Enable or disable Filestore integration with true or false
 existing_filestore             = ""    # If enable_filestore = true, with this variable we can add existing filestore. Require string, example existing_filestore = "computefilesystem-e00r7z9vfxmg1bk99s"
