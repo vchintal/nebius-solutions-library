@@ -32,6 +32,7 @@ The module exposes NIMs using a shared LoadBalancer per group. The demo UI expec
 - **Qwen3** → `8008` *(if enabled in this module)*
 - **ProteinMPNN** → `8009` *(if enabled in this module)*
 - **RFdiffusion** → `8010` *(if enabled in this module)*
+- **Nemotron Nano 12B v2 VL (Nano2 VL)** → `8011` *(if enabled in this module)*
 
 ### Cosmos / World Foundation Models (Separate LB)
 - **Cosmos-Reason1-7B** → `8000`
@@ -107,6 +108,9 @@ The module exposes NIMs using a shared LoadBalancer per group. The demo UI expec
 - `bionemo.tf`
   Deploys BioNeMo NIMs on a separate LoadBalancer.
 
+- `nemotron-nano-12b-v2-vl.tf`
+  Deploys Nemotron Nano 12B v2 VL (Nano2 VL), a vision-language model for document intelligence, video understanding, and multimodal reasoning.
+
 ---
 
 ## How the Demo App Uses This Module
@@ -170,5 +174,8 @@ module "nims" {
   cosmos_reason2_8b = true
   cosmos_reason2_2b = true
   cosmos_embed1     = true
+
+  # Vision-language (Nano2 VL)
+  nemotron_nano_12b_v2_vl = true
 }
 ```
