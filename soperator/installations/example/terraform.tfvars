@@ -182,17 +182,12 @@ nfs_in_k8s = {
 
 # Version of soperator.
 # ---
-slurm_operator_version = "2.0.2"
+slurm_operator_version = "3.0.1"
 
 # Is the version of soperator stable or not.
 # ---
 slurm_operator_stable = true
 
-# Enable nodesets feature for Slurm cluster. When enabled, creates separate nodesets for each worker configuration.
-# ---
-slurm_nodesets_enabled = true
-
-# Partition configuration for nodesets. Used only when slurm_nodesets_enabled is true.
 # Each partition must have either is_all = true (includes all nodesets) or nodeset_refs (list of specific nodesets).
 # Users must not remove the "hidden" partition.
 # Users can modify the "main" partition, but should not remove it (there must be at least one default partition).
@@ -238,18 +233,6 @@ slurm_partition_config_type = "default"
 #   This nodeset may be used in conjunction with partitions.
 #   It is required if `Nodes=<nodeset_name>` is used for a partition.
 #
-# slurm_worker_features = [
-#   {
-#     name = "low_priority"
-#     hostlist_expr = "worker-[0-0]"
-#     nodeset_name = "low_priority"
-#   },
-#   {
-#     name = "low_priority"
-#     hostlist_expr = "worker-1"
-#     nodeset_name = "high_priority"
-#   }
-# ]
 
 # Health check config:
 # - health_check_interval: (Required) Interval for health check run in seconds.
@@ -350,6 +333,10 @@ slurm_nodeset_workers = [
     features = null
     # Set to `true` to create partition for the NodeSet by default
     create_partition = null
+    # Whether to enable ephemeral nodes behavior for this worker nodeset.
+    # When true, nodes will use dynamic topology injection and power management.
+    # By default, false.
+    ephemeral_nodes = false
   },
 ]
 
