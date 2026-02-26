@@ -531,6 +531,7 @@ module "backups" {
   source = "../../modules/backups"
 
   k8s_cluster_context = module.k8s.cluster_context
+  k8s_cluster_id      = module.k8s.cluster_id
 
   iam_project_id      = var.iam_project_id
   iam_tenant_id       = var.iam_tenant_id
