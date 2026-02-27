@@ -98,7 +98,7 @@ variable "ssh_public_key" {
 }
 
 # K8s CPU node group
-variable "cpu_nodes_count" {
+variable "cpu_nodes_fixed_count" {
   description = "Number of nodes in the CPU-only node group."
   type        = number
   default     = 3
@@ -129,10 +129,28 @@ variable "cpu_disk_size" {
 }
 
 # K8s GPU node group
-variable "gpu_nodes_count_per_group" {
+variable "gpu_nodes_fixed_count_per_group" {
   description = "Number of nodes in the GPU node group."
   type        = number
   default     = 2
+}
+
+variable "gpu_nodes_autoscaling" {
+  type = object({
+    enabled  = optional(bool, false)
+    min_size = optional(number)
+    max_size = optional(number)
+  })
+  default = {}
+}
+
+variable "cpu_nodes_autoscaling" {
+  type = object({
+    enabled  = optional(bool, false)
+    min_size = optional(number)
+    max_size = optional(number)
+  })
+  default = {}
 }
 
 variable "gpu_node_groups" {
@@ -238,10 +256,12 @@ variable "enable_grafana" {
   default     = true
 }
 
-variable "enable_loki" {
-  description = "Enable Loki for logs aggregation."
-  type        = bool
-  default     = true
+variable "loki" {
+  type = object({
+    enabled            = optional(bool, false)
+    region             = optional(string)
+    replication_factor = optional(number)
+  })
 }
 
 variable "enable_prometheus" {
