@@ -210,12 +210,12 @@ locals {
       (local.presets.p-8g-192c-2768g) = local.cpu_topologies.g-8gpu-192vcpu-2768gb
     })
     
-    (local.platforms.gpu-l40s-a) = tomap({
-      (local.presets.p-1g-8c-32g)   = local.cpu_topologies.g-1gpu-8vcpu-32gb
-      (local.presets.p-1g-16c-64g)  = local.cpu_topologies.g-1gpu-16vcpu-64gb
-      (local.presets.p-1g-24c-96g)  = local.cpu_topologies.g-1gpu-24vcpu-96gb
-      (local.presets.p-1g-32c-128g) = local.cpu_topologies.g-1gpu-32vcpu-128gb
-      (local.presets.p-1g-40c-160g) = local.cpu_topologies.g-1gpu-40vcpu-160gb
-    })    
+    # (local.platforms.gpu-l40s-a) = tomap({
+    #   (local.presets.p-1g-8c-32g)   = local.cpu_topologies.g-1gpu-8vcpu-32gb
+    #   (local.presets.p-1g-16c-64g)  = local.cpu_topologies.g-1gpu-16vcpu-64gb
+    #   (local.presets.p-1g-24c-96g)  = local.cpu_topologies.g-1gpu-24vcpu-96gb
+    #   (local.presets.p-1g-32c-128g) = local.cpu_topologies.g-1gpu-32vcpu-128gb
+    #   (local.presets.p-1g-40c-160g) = local.cpu_topologies.g-1gpu-40vcpu-160gb
+    # })    
   })
 }
