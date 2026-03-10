@@ -15,6 +15,13 @@ locals {
     p-224c-896g  = "224vcpu-896gb"
     p-256c-1024g = "256vcpu-1024gb"
 
+    # For NVIDIA® L40S PCIe with Intel Ice Lake 
+    p-1g-8c-32g   = "1gpu-8vcpu-32gb"
+    p-1g-16c-64g  = "1gpu-16vcpu-64gb"
+    p-1g-24c-96g  = "1gpu-24vcpu-96gb"
+    p-1g-32c-128g = "1gpu-32vcpu-128gb"
+    p-1g-40c-160g = "1gpu-40vcpu-160gb"
+
     p-1g-16c-200g   = "1gpu-16vcpu-200gb"
     p-1g-20c-224g   = "1gpu-20vcpu-224gb"
     p-1g-24c-346g   = "1gpu-24vcpu-346gb"
@@ -223,6 +230,76 @@ locals {
   }
 
   presets_gpu = {
+    g-1gpu-8vcpu-32gb = {
+      cpu_cores              = 8 * local.reserve.cpu.coefficient - local.reserve.cpu.count
+      memory_gibibytes       = 32 * local.reserve.ram.coefficient - local.reserve.ram.count
+      gpus                   = 1
+      gpu_cluster_compatible = false
+      sufficient = {
+        (module.labels.name_nodeset_system)     = true
+        (module.labels.name_nodeset_controller) = true
+        (module.labels.name_nodeset_worker)     = true
+        (module.labels.name_nodeset_login)      = true
+        (module.labels.name_nodeset_accounting) = true
+        (module.labels.name_nodeset_nfs)        = true
+      }
+    }
+    g-1gpu-16vcpu-64gb = {
+      cpu_cores              = 16 * local.reserve.cpu.coefficient - local.reserve.cpu.count
+      memory_gibibytes       = 64 * local.reserve.ram.coefficient - local.reserve.ram.count
+      gpus                   = 1
+      gpu_cluster_compatible = false
+      sufficient = {
+        (module.labels.name_nodeset_system)     = true
+        (module.labels.name_nodeset_controller) = true
+        (module.labels.name_nodeset_worker)     = true
+        (module.labels.name_nodeset_login)      = true
+        (module.labels.name_nodeset_accounting) = true
+        (module.labels.name_nodeset_nfs)        = true
+      }
+    }
+    g-1gpu-24vcpu-96gb = {
+      cpu_cores              = 24 * local.reserve.cpu.coefficient - local.reserve.cpu.count
+      memory_gibibytes       = 96 * local.reserve.ram.coefficient - local.reserve.ram.count
+      gpus                   = 1
+      gpu_cluster_compatible = false
+      sufficient = {
+        (module.labels.name_nodeset_system)     = true
+        (module.labels.name_nodeset_controller) = true
+        (module.labels.name_nodeset_worker)     = true
+        (module.labels.name_nodeset_login)      = true
+        (module.labels.name_nodeset_accounting) = true
+        (module.labels.name_nodeset_nfs)        = true
+      }
+    }
+    g-1gpu-32vcpu-128gb = {
+      cpu_cores              = 32 * local.reserve.cpu.coefficient - local.reserve.cpu.count
+      memory_gibibytes       = 128 * local.reserve.ram.coefficient - local.reserve.ram.count
+      gpus                   = 1
+      gpu_cluster_compatible = false
+      sufficient = {
+        (module.labels.name_nodeset_system)     = true
+        (module.labels.name_nodeset_controller) = true
+        (module.labels.name_nodeset_worker)     = true
+        (module.labels.name_nodeset_login)      = true
+        (module.labels.name_nodeset_accounting) = true
+        (module.labels.name_nodeset_nfs)        = true
+      }
+    }
+    g-1gpu-40vcpu-160gb = {
+      cpu_cores              = 40 * local.reserve.cpu.coefficient - local.reserve.cpu.count
+      memory_gibibytes       = 160 * local.reserve.ram.coefficient - local.reserve.ram.count
+      gpus                   = 1
+      gpu_cluster_compatible = false
+      sufficient = {
+        (module.labels.name_nodeset_system)     = true
+        (module.labels.name_nodeset_controller) = true
+        (module.labels.name_nodeset_worker)     = true
+        (module.labels.name_nodeset_login)      = true
+        (module.labels.name_nodeset_accounting) = true
+        (module.labels.name_nodeset_nfs)        = true
+      }
+    }
     g-1gpu-16vcpu-200gb = {
       cpu_cores              = 16 * local.reserve.cpu.coefficient - local.reserve.cpu.count
       memory_gibibytes       = 200 * local.reserve.ram.coefficient - local.reserve.ram.count
@@ -360,6 +437,14 @@ locals {
     (local.platforms.gpu-b300-sxm) = tomap({
       (local.presets.p-1g-24c-346g)   = local.presets_gpu.g-1gpu-24vcpu-346gb
       (local.presets.p-8g-192c-2768g) = local.presets_gpu.g-8gpu-192vcpu-2768gb
+    })
+
+    (local.platforms.gpu-l40s-a) = tomap({
+      (local.presets.p-1g-8c-32g)   = local.presets_gpu.g-1gpu-8vcpu-32gb
+      (local.presets.p-1g-16c-64g)  = local.presets_gpu.g-1gpu-16vcpu-64gb
+      (local.presets.p-1g-24c-96g)  = local.presets_gpu.g-1gpu-24vcpu-96gb
+      (local.presets.p-1g-32c-128g) = local.presets_gpu.g-1gpu-32vcpu-128gb
+      (local.presets.p-1g-40c-160g) = local.presets_gpu.g-1gpu-40vcpu-160gb
     })
   })
 }
