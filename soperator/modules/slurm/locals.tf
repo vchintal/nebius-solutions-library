@@ -1,6 +1,6 @@
 locals {
   kube_rbac_proxy = {
-    image = "gcr.io/kubebuilder/kube-rbac-proxy"
+    image = "kubebuilder/kube-rbac-proxy"
     tag   = "v0.15.0"
   }
   helm = {
