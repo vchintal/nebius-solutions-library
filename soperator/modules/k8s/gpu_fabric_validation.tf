@@ -18,7 +18,7 @@ resource "terraform_data" "check_worker_gpu_fabric" {
   lifecycle {
     precondition {
       condition = (
-        each.value.is_gpu
+        each.value.is_gpu && !strcontains(each.value.platform,"gpu-l40s")
         ? (each.value.has_gpu_cluster && length(each.value.fabric) > 0)
         : !each.value.has_gpu_cluster
       )
