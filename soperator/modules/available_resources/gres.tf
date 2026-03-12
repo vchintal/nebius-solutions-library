@@ -67,7 +67,7 @@ locals {
       "AutoDetect=off Name=gpu Type=${local.gres_by_platforms[local.platforms.gpu-b300-sxm]} File=/dev/nvidia0 Cores=48-95 Links=1,1,1,1,1,1,1,-1 Flags=nvidia_gpu_env",
     ]
     (local.platforms.gpu-l40s-a) = [
-      "AutoDetect=nvidia"
+      "AutoDetect=off Name=gpu Type=${local.gres_by_platforms[local.platforms.gpu-l40s-a]} File=/dev/nvidia7 Cores=0 Flags=nvidia_gpu_env",
     ]
   })
 }
