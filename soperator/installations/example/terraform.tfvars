@@ -7,10 +7,10 @@
 #----------------------------------------------------------------------------------------------------------------------#
 
 # Name of the company. It is used for context name of the cluster in .kubeconfig file.
-company_name = ""
+company_name = "intrepid"
 
 # Whether the cluster is production or not.
-production = true
+production = false
 
 # Follow the installation guide and put IAM merge request URL here.
 # Required if production = true.
@@ -58,43 +58,43 @@ filestore_controller_spool = {
 # Notice that auto-backups are enabled for filesystems with size less than 12 TiB.
 # If you need backups for jail larger than 12 TiB, set 'backups_enabled' to 'force_enable' down below.
 # ---
-# filestore_jail = {
-#   spec = {
-#     size_gibibytes       = 2048
-#     block_size_kibibytes = 4
-#     forbid_deletion      = false
-#   }
-# }
-# Or use existing filestore.
-# ---
 filestore_jail = {
-  existing = {
-    id = "computefilesystem-<YOUR-FILESTORE-ID>"
+  spec = {
+    size_gibibytes       = 2048
+    block_size_kibibytes = 4
+    forbid_deletion      = false
   }
 }
+# Or use existing filestore.
+# ---
+# filestore_jail = {
+#   existing = {
+#     id = "computefilesystem-<YOUR-FILESTORE-ID>"
+#   }
+# }
 
 # Additional shared filesystems to be mounted inside jail.
 # If a big filesystem is needed it's better to deploy this additional storage because jails bigger than 12 TiB
 # ARE NOT BACKED UP by default.
 # ---
-# filestore_jail_submounts = [{
-#   name       = "data"
-#   mount_path = "/mnt/data"
-#   spec = {
-#     size_gibibytes       = 2048
-#     block_size_kibibytes = 4
-#     forbid_deletion      = false
-#   }
-# }]
-# Or use existing filestores.
-# ---
 filestore_jail_submounts = [{
   name       = "data"
   mount_path = "/mnt/data"
-  existing = {
-    id = "computefilesystem-<YOUR-FILESTORE-ID>"
+  spec = {
+    size_gibibytes       = 2048
+    block_size_kibibytes = 4
+    forbid_deletion      = false
   }
 }]
+# Or use existing filestores.
+# ---
+# filestore_jail_submounts = [{
+#   name       = "data"
+#   mount_path = "/mnt/data"
+#   existing = {
+#     id = "computefilesystem-<YOUR-FILESTORE-ID>"
+#   }
+# }]
 
 
 # Shared filesystem to be used for accounting DB.
@@ -245,7 +245,7 @@ slurm_nodeset_system = {
   max_size = 9
   resource = {
     platform = "cpu-d3"
-    preset   = "8vcpu-32gb"
+    preset   = "16vcpu-64gb"
   }
   boot_disk = {
     type                 = "NETWORK_SSD"
@@ -286,10 +286,10 @@ slurm_nodeset_controller = {
 slurm_nodeset_workers = [
   {
     name = "worker"
-    size = 128
+    size = 2
     # Autoscaling configuration. Set enabled = false to use fixed node count instead.
     autoscaling = {
-      enabled = true
+      enabled = false
       # min_size options:
       # - null: min=max, no scale-down (default, recommended - saves ~10 min on initial provisioning)
       #   it can be changed to a number later if needed.
@@ -298,24 +298,24 @@ slurm_nodeset_workers = [
     }
     resource = {
       platform = "gpu-h100-sxm"
-      preset   = "8gpu-128vcpu-1600gb"
+      preset   = "1gpu-16vcpu-200gb"
     }
     boot_disk = {
       type                 = "NETWORK_SSD"
       size_gibibytes       = 512
       block_size_kibibytes = 4
     }
-    gpu_cluster = {
-      # id                = "gpucluster-..."
-      infiniband_fabric = ""
-    }
+    # gpu_cluster = {
+    #   # id                = "gpucluster-..."
+    #   infiniband_fabric = ""
+    # }
     # Change to preemptible = {} in case you want to use preemptible nodes
     preemptible = null
     # Use reservation_policy to leverage compute reservations (capacity blocks)
-    # reservation_policy = {
-    #   policy          = "AUTO"  # AUTO, FORBID, or STRICT
-    #   reservation_ids = ["capacityblockgroup-xYYzzzzzz"]
-    # }
+    reservation_policy = {
+      policy          = "STRICT"
+      reservation_ids = ["capacityblockgroup-e00yedozveedjwiquqtxm"]
+    }
     # Required for GB300 workers. This creates one NVLink instance group per node group
     # and labels nodes with nebius.com/nvlink-instance-group=<group-id>.
     # nvlink = {
@@ -332,13 +332,13 @@ slurm_nodeset_workers = [
     # When true, nodes will use dynamic topology injection and power management.
     # By default, false.
     ephemeral_nodes                = false
-    initial_number_ephemeral_nodes = 1
+    # initial_number_ephemeral_nodes = 1
     # Optional PersistentVolumeClaim retention policy for PVCs created by the worker nodeset StatefulSet.
     # Supported values: `Retain` or `Delete`.
-    persistent_volume_claim_retention_policy = {
-      when_deleted = "Delete"
-      when_scaled  = "Delete"
-    }
+    # persistent_volume_claim_retention_policy = {
+    #   when_deleted = "Delete"
+    #   when_scaled  = "Delete"
+    # }
     # Optional local NVMe passthrough for this nodeset only.
     # Uses local instance disks, creates a RAID0 array and mounts it on the host via cloud-init.
     # mount_path: path used for both host RAID mount and jail submount.
@@ -351,33 +351,33 @@ slurm_nodeset_workers = [
     # It will create compute disks with provided spec for each node via CSI.
     # NOTE: in case of `NETWORK_SSD_NON_REPLICATED` disk type, `size` must be divisible by 93Gi - https://docs.nebius.com/compute/storage/types#disks-types.
     # ---
-    # node_local_jail_submounts = []
+    node_local_jail_submounts = []
     # ---
-    node_local_jail_submounts = [{
-      name            = "local-data"
-      mount_path      = "/mnt/local-data"
-      size_gibibytes  = 1024
-      disk_type       = "NETWORK_SSD"
-      filesystem_type = "ext4"
-    }]
+    # node_local_jail_submounts = [{
+    #   name            = "local-data"
+    #   mount_path      = "/mnt/local-data"
+    #   size_gibibytes  = 1024
+    #   disk_type       = "NETWORK_SSD"
+    #   filesystem_type = "ext4"
+    # }]
     # Whether to create extra NRD disks for storing Docker/Enroot images and container filesystems on each worker node.
     # It will create compute disks with provided spec for each node via CSI.
     # NOTE: In case you're not going to use Docker/Enroot in your workloads, it's worth disabling this feature.
     # NOTE: `size` must be divisible by 93Gi - https://docs.nebius.com/compute/storage/types#disks-types.
     # ---
-    # node_local_image_disk = {
-    #   enabled = false
-    # }
-    # ---
     node_local_image_disk = {
-      enabled = true
-      spec = {
-        size_gibibytes  = 930
-        filesystem_type = "ext4"
-        # Could be changed to `NETWORK_SSD_NON_REPLICATED`
-        disk_type = "NETWORK_SSD_IO_M3"
-      }
+      enabled = false
     }
+    # ---
+    # node_local_image_disk = {
+    #   enabled = true
+    #   spec = {
+    #     size_gibibytes  = 930
+    #     filesystem_type = "ext4"
+    #     # Could be changed to `NETWORK_SSD_NON_REPLICATED`
+    #     disk_type = "NETWORK_SSD_IO_M3"
+    #   }
+    # }
   },
 ]
 
@@ -474,7 +474,7 @@ slurm_sssd_ldap_ca_config_map_ref_name = ""
 # Authorized keys accepted for connecting to Slurm login nodes via SSH as 'root' user.
 # ---
 slurm_login_ssh_root_public_keys = [
-  "",
+  "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDJfsUJUxXoWWnCh70OMyDqBpV3nRrzqBdsbaDOfK/ED vchintal@x1carbon-personal",
 ]
 
 # endregion Login
@@ -504,7 +504,7 @@ slurm_exporter_enabled = true
 # - "dev" - to be used for Soperator development clusters.
 # - "essential" - skip most of checks and run only essential ones. Don't use in production.
 # ---
-active_checks_scope = ""
+active_checks_scope = "essential"
 
 # endregion ActiveChecks
 
@@ -571,7 +571,7 @@ soperator_notifier = {
   enabled = false
 }
 
-public_o11y_enabled = true
+public_o11y_enabled = false
 
 # endregion Telemetry
 
@@ -601,7 +601,7 @@ accounting_enabled = true
 # Whether to enable Backups. Choose from 'auto', 'force_enable', 'force_disable'.
 # 'auto' turns backups on for jails with max size less than 12 TB and is a default option.
 # ---
-backups_enabled = "auto"
+backups_enabled = "force_disable"
 
 # Password to be used for encrypting jail backups.
 # ---

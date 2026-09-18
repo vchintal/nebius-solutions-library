@@ -1,4 +1,8 @@
 !.gitignore
 
-./**/terraform_backend_override.tf
+**/terraform_backend_override.tf
 ./**/login*.sh
+
+/**/.terraform
+/**/.terraform.lock.hcl
+/**/*.env
