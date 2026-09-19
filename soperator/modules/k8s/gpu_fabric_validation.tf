@@ -29,8 +29,7 @@ resource "terraform_data" "check_worker_gpu_fabric" {
       error_message = (
         each.value.fabric_capable
         ? "Worker '${each.value.name}' uses GPU preset '${each.value.preset}' and requires either gpu_cluster.id for an existing GPU cluster or gpu_cluster.infiniband_fabric to create one."
-        : "Worker '${each.value.name}' uses preset '${each.value.preset}', which cannot join a GPU cluster, so gpu_cluster must be
-        unset."      
+        : "Worker '${each.value.name}' uses preset '${each.value.preset}', which cannot join a GPU cluster, so gpu_cluster must be unset."      
       )
     }
   }
