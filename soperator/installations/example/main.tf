@@ -16,6 +16,13 @@ locals {
   flux_namespace     = "flux-system"
   k8s_cluster_name   = format("soperator-%s", var.company_name)
 
+  # True when at least one worker nodeset can actually join an InfiniBand fabric.
+  # The 1gpu-* presets are gpu_cluster_compatible = false, so a cluster built only
+  # from them has no fabric to describe and must not use topology/tree.
+  fabric_enabled = anytrue([
+    for nodeset in local.slurm_nodeset_workers : module.resources.by_platform[nodeset.resource.platform][nodeset.resource.preset].gpu_cluster_compatible
+  ])
+
   gb300_platform              = "gpu-gb300"
   gb300_nodes_per_nodegroup   = 18
   nvl_instance_group_size     = 18
@@ -561,7 +568,7 @@ module "slurm" {
     )
     cpu_topology                             = module.resources.cpu_topology_by_platform[nodeset.resource.platform][nodeset.resource.preset]
     gres_name                                = lookup(module.resources.gres_name_by_platform, nodeset.resource.platform, null)
-    gres_config                              = lookup(module.resources.gres_config_by_platform, nodeset.resource.platform, null)
+    gres_config                              = lookup(lookup(module.resources.gres_config_by_platform, nodeset.resource.platform, {}),nodeset.resource.preset,null)
     create_partition                         = nodeset.create_partition != null ? nodeset.create_partition : false
     ephemeral_nodes                          = nodeset.ephemeral_nodes
     persistent_volume_claim_retention_policy = nodeset.persistent_volume_claim_retention_policy
@@ -590,7 +597,7 @@ module "slurm" {
   }]
 
   topology = {
-    plugin     = local.gb300_enabled ? "topology/block" : "topology/tree"
+    plugin     = local.gb300_enabled ? "topology/block" : (local.fabric_enabled ? "topology/tree" : "none")
     block_size = local.gb300_enabled ? try(var.slurm_topology_block_size, local.gb300_nodes_per_nodegroup) : null
   }
 

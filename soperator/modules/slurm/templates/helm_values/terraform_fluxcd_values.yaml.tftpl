@@ -461,6 +461,10 @@ resources:
 
             topology:
               blockSize: ${slurm_cluster.topology.block_size}
+            %{~ else if slurm_cluster.topology.plugin == "none" ~}
+            slurmConfig:
+              topologyPlugin: ""
+              topologyParam: ""
             %{~ endif ~}
 
             periodicChecks:

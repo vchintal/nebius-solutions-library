@@ -50,7 +50,7 @@ variable "slurm_partition_raw_config" {
 }
 
 variable "topology" {
-  description = "Slurm topology configuration. topology/tree leaves the chart default unset; topology/block renders BlockAsNodeRank and requires block_size."
+  description = "Slurm topology configuration. 'none' clears topologyPlugin so Slurm falls back to its built-in topology/flat;topology/tree leaves the chart default unset; topology/block renders BlockAsNodeRank and requires block_size."
   type = object({
     plugin     = string
     block_size = optional(number)
@@ -61,8 +61,8 @@ variable "topology" {
   nullable = false
 
   validation {
-    condition     = contains(["topology/tree", "topology/block"], var.topology.plugin)
-    error_message = "topology.plugin must be one of 'topology/tree' or 'topology/block'."
+    condition     = contains(["topology/tree", "topology/block", "none"], var.topology.plugin)
+    error_message = "topology.plugin must be one of 'topology/tree' or 'topology/block' or 'none'."
   }
 
   validation {

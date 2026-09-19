@@ -144,6 +144,7 @@ resource "helm_release" "soperator_fluxcd_cm" {
       }
 
       topology = {
+        plugin     = var.topology.plugin
         block_size = var.topology.plugin == "topology/block" ? var.topology.block_size : null
       }
 
