@@ -58,43 +58,43 @@ filestore_controller_spool = {
 # Notice that auto-backups are enabled for filesystems with size less than 12 TiB.
 # If you need backups for jail larger than 12 TiB, set 'backups_enabled' to 'force_enable' down below.
 # ---
-filestore_jail = {
-  spec = {
-    size_gibibytes       = 2048
-    block_size_kibibytes = 4
-    forbid_deletion      = false
-  }
-}
-# Or use existing filestore.
-# ---
 # filestore_jail = {
-#   existing = {
-#     id = "computefilesystem-<YOUR-FILESTORE-ID>"
+#   spec = {
+#     size_gibibytes       = 2048
+#     block_size_kibibytes = 4
+#     forbid_deletion      = false
 #   }
 # }
+# Or use existing filestore.
+# ---
+filestore_jail = {
+  existing = {
+    id = "computefilesystem-e00d446bdk6c8mks1c"
+  }
+}
 
 # Additional shared filesystems to be mounted inside jail.
 # If a big filesystem is needed it's better to deploy this additional storage because jails bigger than 12 TiB
 # ARE NOT BACKED UP by default.
 # ---
-filestore_jail_submounts = [{
-  name       = "data"
-  mount_path = "/mnt/data"
-  spec = {
-    size_gibibytes       = 2048
-    block_size_kibibytes = 4
-    forbid_deletion      = false
-  }
-}]
-# Or use existing filestores.
-# ---
 # filestore_jail_submounts = [{
 #   name       = "data"
 #   mount_path = "/mnt/data"
-#   existing = {
-#     id = "computefilesystem-<YOUR-FILESTORE-ID>"
+#   spec = {
+#     size_gibibytes       = 2048
+#     block_size_kibibytes = 4
+#     forbid_deletion      = false
 #   }
 # }]
+# Or use existing filestores.
+# ---
+filestore_jail_submounts = [{
+  name       = "data"
+  mount_path = "/mnt/data"
+  existing = {
+    id = "computefilesystem-e00fr9z9nb7bmtqqky"
+  }
+}]
 
 
 # Shared filesystem to be used for accounting DB.
@@ -351,33 +351,33 @@ slurm_nodeset_workers = [
     # It will create compute disks with provided spec for each node via CSI.
     # NOTE: in case of `NETWORK_SSD_NON_REPLICATED` disk type, `size` must be divisible by 93Gi - https://docs.nebius.com/compute/storage/types#disks-types.
     # ---
-    node_local_jail_submounts = []
+    # node_local_jail_submounts = []
     # ---
-    # node_local_jail_submounts = [{
-    #   name            = "local-data"
-    #   mount_path      = "/mnt/local-data"
-    #   size_gibibytes  = 1024
-    #   disk_type       = "NETWORK_SSD"
-    #   filesystem_type = "ext4"
-    # }]
+    node_local_jail_submounts = [{
+      name            = "local-data"
+      mount_path      = "/mnt/local-data"
+      size_gibibytes  = 1024
+      disk_type       = "NETWORK_SSD"
+      filesystem_type = "ext4"
+    }]
     # Whether to create extra NRD disks for storing Docker/Enroot images and container filesystems on each worker node.
     # It will create compute disks with provided spec for each node via CSI.
     # NOTE: In case you're not going to use Docker/Enroot in your workloads, it's worth disabling this feature.
     # NOTE: `size` must be divisible by 93Gi - https://docs.nebius.com/compute/storage/types#disks-types.
     # ---
-    node_local_image_disk = {
-      enabled = false
-    }
-    # ---
     # node_local_image_disk = {
-    #   enabled = true
-    #   spec = {
-    #     size_gibibytes  = 930
-    #     filesystem_type = "ext4"
-    #     # Could be changed to `NETWORK_SSD_NON_REPLICATED`
-    #     disk_type = "NETWORK_SSD_IO_M3"
-    #   }
+    #   enabled = false
     # }
+    # ---
+    node_local_image_disk = {
+      enabled = true
+      spec = {
+        size_gibibytes  = 930
+        filesystem_type = "ext4"
+        # Could be changed to `NETWORK_SSD_NON_REPLICATED`
+        disk_type = "NETWORK_SSD_IO_M3"
+      }
+    }
   },
 ]
 
